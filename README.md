@@ -64,7 +64,7 @@ A ToDoList application built with Python OOP principles, following clean archite
 
 ### Running the Application
 ```bash
-poetry run python -m src.todolist.cli.interface
+poetry run python -m src.todo_list.cli.interface
 ```
 
 ## 🏗️ Project Structure
