@@ -78,7 +78,7 @@ class ToDoListApp:
         validate_task_description(description)
         validate_deadline(deadline)
         
-        task = Task(0, project_id, title, description, deadline)
+        task = Task(0, project_id, title, description, TaskStatus.TODO, deadline)
         return self.storage.create_task(task)
     
     def change_task_status(self, task_id: int, new_status: TaskStatus) -> Task:
