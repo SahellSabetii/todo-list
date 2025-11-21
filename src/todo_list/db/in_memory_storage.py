@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 
-from ..core.entities import Project, Task
-from ..core.exceptions import ProjectNotFoundError, TaskNotFoundError
+from ..models.base import Project, Task
+from ..exceptions.base import ProjectNotFoundError, TaskNotFoundError
 from . import StorageProtocol
 
 

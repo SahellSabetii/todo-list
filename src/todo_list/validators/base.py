@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from .exceptions import ValidationError
+from ..exceptions.base import ValidationError
 from ..config import Config
 
 

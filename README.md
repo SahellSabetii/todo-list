@@ -64,34 +64,7 @@ A ToDoList application built with Python OOP principles, following clean archite
 
 ### Running the Application
 ```bash
-poetry run python -m src.todo_list.cli.interface
-```
-
-## 🏗️ Project Structure
-
-```
-todo-list/
-├── src/todo_list/
-│   ├── core/
-│   │   ├── __init__.py
-│   │   ├── entities.py
-│   │   ├── exceptions.py
-│   │   └── validators.py
-│   ├── storage/
-│   │   ├── __init__.py
-│   │   └── in_memory_storage.py
-│   ├── cli/
-│   │   ├── __init__.py
-│   │   └── interface.py
-│   ├──__init__.py
-│   ├── config.py
-│   └── main.py
-├── tests/
-│   └── __init__.py
-├── .env.example
-├── .gitignore
-├── pyproject.toml
-└── README.md
+poetry run python -m src.todo_list.cli.console
 ```
 
 ## 🔧 Configuration

@@ -1,12 +1,12 @@
 from typing import List
 from datetime import datetime
 
-from .core.entities import Project, Task, TaskStatus
-from .core.exceptions import (
+from .models.base import Project, Task, TaskStatus
+from .exceptions.base import (
     ValidationError, DuplicateProjectError, ProjectNotFoundError,
     TaskNotFoundError, LimitExceededError, InvalidStatusError
 )
-from .core.validators import (
+from .validators.base import (
     validate_project_name, validate_project_description,
     validate_task_title, validate_task_description, validate_deadline
 )

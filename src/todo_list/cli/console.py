@@ -2,8 +2,8 @@ from datetime import datetime
 from typing import Optional, List
 
 from ..main import ToDoListApp
-from ..core.entities import Project, Task
-from ..core.exceptions import (
+from ..models.base import Project, Task
+from ..exceptions.base import (
     ValidationError, DuplicateProjectError, ProjectNotFoundError,
     TaskNotFoundError, LimitExceededError, InvalidStatusError
 )
