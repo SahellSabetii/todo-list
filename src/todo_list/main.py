@@ -10,7 +10,7 @@ from .core.validators import (
     validate_project_name, validate_project_description,
     validate_task_title, validate_task_description, validate_deadline
 )
-from .storage.in_memory_storage import InMemoryStorage
+from .db.in_memory_storage import InMemoryStorage
 from .config import Config
 
 
