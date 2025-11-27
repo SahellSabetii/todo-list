@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 from datetime import datetime
 
@@ -8,17 +9,27 @@ from todo_list.exceptions import ValidationException
 class TaskService:
     def __init__(self, task_repository: TaskRepository):
         self.task_repository = task_repository
+        self.max_tasks_per_project = int(os.getenv('MAX_NUMBER_OF_TASKS_PER_PROJECT', 100))
+        self.max_task_title_length = int(os.getenv('MAX_TASK_TITLE_LENGTH', 200))
+        self.max_task_description_length = int(os.getenv('MAX_TASK_DESCRIPTION_LENGTH', 2000))
     
     def create_task(self, title: str, project_id: int, description: str = None, 
                    deadline: datetime = None):
         if not title or len(title.strip()) == 0:
             raise ValidationException("Task title cannot be empty")
         
-        if len(title) > 200:
-            raise ValidationException("Task title cannot exceed 200 characters")
+        if len(title) > self.max_task_title_length:
+            raise ValidationException(f"Task title cannot exceed {self.max_task_title_length} characters")
+        
+        if description and len(description) > self.max_task_description_length:
+            raise ValidationException(f"Task description cannot exceed {self.max_task_description_length} characters")
         
         if deadline and deadline < datetime.now():
             raise ValidationException("Deadline cannot be in the past")
+        
+        project_tasks = self.task_repository.get_by_project(project_id)
+        if len(project_tasks) >= self.max_tasks_per_project:
+            raise ValidationException(f"Cannot create more than {self.max_tasks_per_project} tasks per project")
         
         return self.task_repository.create(title, project_id, description, deadline)
     
@@ -35,11 +46,14 @@ class TaskService:
         return self.task_repository.get_overdue_tasks()
     
     def update_task(self, task_id: int, **kwargs):
-        if 'title' in kwargs and (not kwargs['title'] or len(kwargs['title'].strip()) == 0):
-            raise ValidationException("Task title cannot be empty")
+        if 'title' in kwargs:
+            if not kwargs['title'] or len(kwargs['title'].strip()) == 0:
+                raise ValidationException("Task title cannot be empty")
+            if len(kwargs['title']) > self.max_task_title_length:
+                raise ValidationException(f"Task title cannot exceed {self.max_task_title_length} characters")
         
-        if 'title' in kwargs and len(kwargs['title']) > 200:
-            raise ValidationException("Task title cannot exceed 200 characters")
+        if 'description' in kwargs and kwargs['description'] and len(kwargs['description']) > self.max_task_description_length:
+            raise ValidationException(f"Task description cannot exceed {self.max_task_description_length} characters")
         
         if 'deadline' in kwargs and kwargs['deadline'] and kwargs['deadline'] < datetime.now():
             raise ValidationException("Deadline cannot be in the past")

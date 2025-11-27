@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 
 from todo_list.repositories.project_repository import ProjectRepository
@@ -7,13 +8,23 @@ from todo_list.exceptions import ValidationException, BusinessRuleException
 class ProjectService:
     def __init__(self, project_repository: ProjectRepository):
         self.project_repository = project_repository
+        self.max_projects = int(os.getenv('MAX_NUMBER_OF_PROJECTS', 100))
+        self.max_project_name_length = int(os.getenv('MAX_PROJECT_NAME_LENGTH', 100))
+        self.max_project_description_length = int(os.getenv('MAX_PROJECT_DESCRIPTION_LENGTH', 1000))
     
     def create_project(self, name: str, description: str = None):
         if not name or len(name.strip()) == 0:
             raise ValidationException("Project name cannot be empty")
         
-        if len(name) > 100:
-            raise ValidationException("Project name cannot exceed 100 characters")
+        if len(name) > self.max_project_name_length:
+            raise ValidationException(f"Project name cannot exceed {self.max_project_name_length} characters")
+        
+        if description and len(description) > self.max_project_description_length:
+            raise ValidationException(f"Project description cannot exceed {self.max_project_description_length} characters")
+        
+        all_projects = self.project_repository.get_all()
+        if len(all_projects) >= self.max_projects:
+            raise BusinessRuleException(f"Cannot create more than {self.max_projects} projects")
         
         return self.project_repository.create(name, description)
     
@@ -30,8 +41,11 @@ class ProjectService:
         if name and len(name.strip()) == 0:
             raise ValidationException("Project name cannot be empty")
         
-        if name and len(name) > 100:
-            raise ValidationException("Project name cannot exceed 100 characters")
+        if name and len(name) > self.max_project_name_length:
+            raise ValidationException(f"Project name cannot exceed {self.max_project_name_length} characters")
+        
+        if description and len(description) > self.max_project_description_length:
+            raise ValidationException(f"Project description cannot exceed {self.max_project_description_length} characters")
         
         return self.project_repository.update(project_id, name, description)
     
