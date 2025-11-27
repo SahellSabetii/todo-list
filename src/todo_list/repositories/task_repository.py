@@ -57,20 +57,15 @@ class TaskRepository:
         self.session.commit()
         return task
     
-    def update_status(self, task_id: int, status: TaskStatus) -> Optional[Task]:
+    def update(self, task_id: int, **kwargs) -> Optional[Task]:
         task = self.get_by_id(task_id)
         if not task:
             raise NotFoundException(f"Task with id {task_id} not found")
         
-        task.status = status.value
-        self.session.commit()
-        return task
-    
-    def update_deadline(self, task_id: int, deadline: datetime = None) -> Optional[Task]:
-        task = self.get_by_id(task_id)
-        if not task:
-            raise NotFoundException(f"Task with id {task_id} not found")
+        for key, value in kwargs.items():
+            if hasattr(task, key) and value is not None:
+                setattr(task, key, value)
         
-        task.deadline = deadline
         self.session.commit()
+        self.session.refresh(task)
         return task
