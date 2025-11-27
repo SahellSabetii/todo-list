@@ -7,6 +7,7 @@ from todo_list.repositories.task_repository import TaskRepository
 from todo_list.services.project_service import ProjectService
 from todo_list.services.task_service import TaskService
 from todo_list.commands.autoclose_overdue import autoclose_overdue_cmd
+from todo_list.models.task import TaskStatus
 
 
 class TodoCLI:
@@ -22,17 +23,14 @@ class TodoCLI:
 
 @click.group()
 def cli():
-    """Todo List Application with PostgreSQL"""
     pass
 
 @cli.group()
 def project():
-    """Project management commands"""
     pass
 
 @cli.group()
 def task():
-    """Task management commands"""
     pass
 
 # Project Commands
@@ -83,6 +81,28 @@ def delete(project_id):
     finally:
         todo.close_session()
 
+@project.command()
+@click.argument('project_id', type=int)
+@click.option('--name', help='New project name')
+@click.option('--description', help='New project description')
+def edit(project_id, name, description):
+    """Edit an existing project"""
+    todo = TodoCLI()
+    try:
+        if not name and not description:
+            click.echo("❌ Error: At least one of --name or --description must be provided")
+            return
+        
+        project = todo.project_service.update_project(project_id, name, description)
+        click.echo(f"✅ Project {project_id} updated successfully")
+        click.echo(f"   Name: {project.name}")
+        if project.description:
+            click.echo(f"   Description: {project.description}")
+    except Exception as e:
+        click.echo(f"❌ Error: {e}")
+    finally:
+        todo.close_session()
+
 # Task Commands
 @task.command()
 @click.option('--title', required=True, help='Task title')
@@ -115,12 +135,12 @@ def list():
             return
         
         for task in tasks:
-            status_icon = "✅" if task.status == 'done' else "⏳"
+            status_icon = "✅" if task.status == TaskStatus.DONE.value else "⏳"
             click.echo(f"{status_icon} {task.id}: {task.title} [Project: {task.project.name}]")
             if task.description:
                 click.echo(f"   Description: {task.description}")
             if task.deadline:
-                overdue = " (OVERDUE!)" if task.deadline < datetime.now() and task.status != 'done' else ""
+                overdue = " (OVERDUE!)" if task.deadline < datetime.now() and task.status != TaskStatus.DONE.value else ""
                 click.echo(f"   Deadline: {task.deadline}{overdue}")
             click.echo(f"   Status: {task.status}")
             click.echo()
@@ -155,6 +175,48 @@ def overdue():
             click.echo(f"   ⚠️  {task.id}: {task.title} [Project: {task.project.name}]")
             click.echo(f"      Deadline: {task.deadline}")
             click.echo()
+    finally:
+        todo.close_session()
+
+@task.command()
+@click.argument('task_id', type=int)
+@click.option('--title', help='New task title')
+@click.option('--description', help='New task description')
+@click.option('--deadline', help='New deadline (YYYY-MM-DD HH:MM)')
+@click.option('--status', type=click.Choice(['todo', 'doing', 'done']), help='New status')
+def edit(task_id, title, description, deadline, status):
+    """Edit an existing task"""
+    todo = TodoCLI()
+    try:
+        if not any([title, description, deadline, status]):
+            click.echo("❌ Error: At least one option must be provided (--title, --description, --deadline, or --status)")
+            return
+        
+        update_data = {}
+        
+        if title:
+            update_data['title'] = title
+        
+        if description is not None:  # Allow empty description
+            update_data['description'] = description
+        
+        if deadline:
+            update_data['deadline'] = datetime.strptime(deadline, '%Y-%m-%d %H:%M')
+        
+        if status:
+            status_enum = TaskStatus[status.upper()]
+            update_data['status'] = status_enum
+        
+        task = todo.task_service.update_task(task_id, **update_data)
+        click.echo(f"✅ Task {task_id} updated successfully")
+        click.echo(f"   Title: {task.title}")
+        click.echo(f"   Status: {task.status}")
+        if task.description:
+            click.echo(f"   Description: {task.description}")
+        if task.deadline:
+            click.echo(f"   Deadline: {task.deadline}")
+    except Exception as e:
+        click.echo(f"❌ Error: {e}")
     finally:
         todo.close_session()
 
