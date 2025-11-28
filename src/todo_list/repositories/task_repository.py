@@ -74,3 +74,12 @@ class TaskRepository:
         self.session.commit()
         self.session.refresh(task)
         return task
+    
+    def delete(self, task_id: int) -> bool:
+        task = self.get_by_id(task_id)
+        if not task:
+            raise NotFoundException(f"Task with id {task_id} not found")
+        
+        self.session.delete(task)
+        self.session.commit()
+        return True
