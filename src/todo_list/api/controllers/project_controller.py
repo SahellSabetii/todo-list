@@ -9,7 +9,7 @@ from todo_list.api.dependencies.services import get_project_service
 from todo_list.exceptions import NotFoundException, DuplicateEntryException, ValidationException, BusinessRuleException
 
 
-router = APIRouter(prefix="/projects", tags=["projects"])
+router = APIRouter()
 
 @router.post(
     "/",
