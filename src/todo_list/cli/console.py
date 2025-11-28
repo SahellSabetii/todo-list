@@ -1,5 +1,5 @@
 import click
-from datetime import datetime
+from datetime import datetime, timezone
 
 from todo_list.db.session import db
 from todo_list.repositories.project_repository import ProjectRepository
@@ -141,13 +141,20 @@ def list():
             click.echo("No tasks found")
             return
         
+        current_time = datetime.now(timezone.utc)
+        
         for task in tasks:
-            status_icon = "✅" if task.status == TaskStatus.DONE.value else "⏳"
-            click.echo(f"{status_icon} {task.id}: {task.title} [Project: {task.project.name}]")
+            status_icon = "✅" if task.status == 'done' else "⏳"
+            overdue = ""
+            
+            if task.deadline and task.deadline.tzinfo is not None:
+                if task.deadline < current_time and task.status != 'done':
+                    overdue = " (OVERDUE!)"
+            
+            click.echo(f"{status_icon} {task.id}: {task.title} [Project: {task.project.name}]{overdue}")
             if task.description:
                 click.echo(f"   Description: {task.description}")
             if task.deadline:
-                overdue = " (OVERDUE!)" if task.deadline < datetime.now() and task.status != TaskStatus.DONE.value else ""
                 click.echo(f"   Deadline: {task.deadline}{overdue}")
             click.echo(f"   Status: {task.status}")
             click.echo()
@@ -168,14 +175,15 @@ def list_by_project(project_id):
         if not tasks:
             click.echo(f"📭 No tasks found for project '{project.name}'")
             return
+        current_time = datetime.now(timezone.utc)
         click.echo(f"📋 Tasks for project '{project.name}':")
         click.echo("=" * 50)
-
         for task in tasks:
             status_icon = "✅" if task.status == 'done' else "⏳"
             overdue_indicator = ""
-            if task.deadline and task.deadline < datetime.now() and task.status != 'done':
-                overdue_indicator = " 🚨 OVERDUE!"
+            if task.deadline and task.deadline.tzinfo is not None:
+                if task.deadline < current_time and task.status != 'done':
+                    overdue_indicator = " 🚨 OVERDUE!"
             click.echo(f"{status_icon} {task.id}: {task.title}{overdue_indicator}")
             if task.description:
                 click.echo(f"   Description: {task.description}")

@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
+from sqlalchemy import func
 
 from todo_list.models.task import Task, TaskStatus
 from todo_list.models.project import Project
@@ -41,10 +42,11 @@ class TaskRepository:
         return self.session.query(Task).filter(Task.project_id == project_id).all()
     
     def get_overdue_tasks(self) -> List[Task]:
+        current_time = func.now()
         return self.session.query(Task).filter(
             and_(
                 Task.deadline.isnot(None),
-                Task.deadline < datetime.now(),
+                Task.deadline < current_time,
                 Task.status != TaskStatus.DONE.value,
                 Task.closed_at.is_(None)
             )
