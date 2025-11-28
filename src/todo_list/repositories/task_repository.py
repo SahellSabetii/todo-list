@@ -24,7 +24,7 @@ class TaskRepository:
             description=description,
             project_id=project_id,
             deadline=deadline,
-            status=TaskStatus.PENDING.value
+            status=TaskStatus.TODO.value
         )
         self.session.add(task)
         self.session.commit()
