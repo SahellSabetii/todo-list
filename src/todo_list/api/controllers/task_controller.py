@@ -12,7 +12,7 @@ from todo_list.exceptions import NotFoundException, ValidationException
 from todo_list.models.task import TaskStatus
 
 
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+router = APIRouter()
 
 @router.post(
     "/",
