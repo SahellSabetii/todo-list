@@ -59,8 +59,15 @@ def list():
             return
         
         for project in projects:
-            task_count = len(project.tasks)
-            click.echo(f"📁 {project.id}: {project.name} ({task_count} tasks)")
+            tasks = todo.task_service.get_tasks_by_project(project.id)
+            task_count = len(tasks)
+            
+            pending_tasks = len([t for t in tasks if t.status != 'done'])
+            done_tasks = len([t for t in tasks if t.status == 'done'])
+            
+            click.echo(f"📁 {project.id}: {project.name}")
+            click.echo(f"   Tasks: {task_count} total ({pending_tasks} pending, {done_tasks} done)")
+            
             if project.description:
                 click.echo(f"   Description: {project.description}")
             click.echo(f"   Created: {project.created_at}")
@@ -144,6 +151,42 @@ def list():
                 click.echo(f"   Deadline: {task.deadline}{overdue}")
             click.echo(f"   Status: {task.status}")
             click.echo()
+    finally:
+        todo.close_session()
+
+@task.command()
+@click.option('--project-id', required=True, type=int, help='Project ID to list tasks for')
+def list_by_project(project_id):
+    """List all tasks for a specific project"""
+    todo = TodoCLI()
+    try:
+        project = todo.project_service.get_project(project_id)
+        if not project:
+            click.echo(f"❌ Project with ID {project_id} not found")
+            return
+        tasks = todo.task_service.get_tasks_by_project(project_id)
+        if not tasks:
+            click.echo(f"📭 No tasks found for project '{project.name}'")
+            return
+        click.echo(f"📋 Tasks for project '{project.name}':")
+        click.echo("=" * 50)
+
+        for task in tasks:
+            status_icon = "✅" if task.status == 'done' else "⏳"
+            overdue_indicator = ""
+            if task.deadline and task.deadline < datetime.now() and task.status != 'done':
+                overdue_indicator = " 🚨 OVERDUE!"
+            click.echo(f"{status_icon} {task.id}: {task.title}{overdue_indicator}")
+            if task.description:
+                click.echo(f"   Description: {task.description}")
+            click.echo(f"   Status: {task.status}")
+            if task.deadline:
+                click.echo(f"   Deadline: {task.deadline}")
+            if task.closed_at:
+                click.echo(f"   Closed: {task.closed_at}")
+            click.echo()
+    except Exception as e:
+        click.echo(f"❌ Error: {e}")
     finally:
         todo.close_session()
 

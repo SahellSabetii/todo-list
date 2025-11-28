@@ -37,6 +37,9 @@ class TaskRepository:
     def get_all(self) -> List[Task]:
         return self.session.query(Task).all()
     
+    def get_by_project(self, project_id: int) -> List[Task]:
+        return self.session.query(Task).filter(Task.project_id == project_id).all()
+    
     def get_overdue_tasks(self) -> List[Task]:
         return self.session.query(Task).filter(
             and_(
