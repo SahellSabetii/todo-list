@@ -1,4 +1,5 @@
 import click
+import warnings
 from datetime import datetime, timezone
 
 from todo_list.db.session import db
@@ -8,6 +9,14 @@ from todo_list.services.project_service import ProjectService
 from todo_list.services.task_service import TaskService
 from todo_list.commands.autoclose_overdue import autoclose_overdue_cmd
 from todo_list.models.task import TaskStatus
+
+
+warnings.warn(
+    "CLI interface is deprecated and will be removed soon"
+    "Please use the FastAPI interface instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 
 class TodoCLI:
@@ -23,7 +32,10 @@ class TodoCLI:
 
 @click.group()
 def cli():
-    pass
+    click.echo("⚠️  WARNING: CLI interface is deprecated and will be removed soon.")
+    click.echo("   Please use the FastAPI interface instead.")
+    click.echo("   Start API server: poetry run python -m todo_list.api_server")
+    click.echo("   API Docs: https://example.com/docs\n")
 
 @cli.group()
 def project():
