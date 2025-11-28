@@ -96,6 +96,9 @@ A ToDoList application built with Python OOP principles, now with PostgreSQL dat
 # List all tasks
 ./main.py task list
 
+# List tasks for a specific project
+./main.py task list-by-project --project-id 1
+
 # Edit a task
 ./main.py task edit --id 1 --title "Updated task title" --description "New description" --status in_progress
 
@@ -131,23 +134,6 @@ A ToDoList application built with Python OOP principles, now with PostgreSQL dat
 
 # Schedule auto-close (add to crontab)
 */15 * * * * cd /path/to/todolist && ./main.py autoclose-overdue
-```
-
-## 🏗️ Project Architecture
-
-```
-todolist/
-├── app/
-│   ├── models/           # SQLAlchemy ORM models
-│   ├── repositories/     # Data access layer (Repository Pattern)
-│   ├── services/         # Business logic layer
-│   ├── commands/         # CLI commands and scheduled tasks
-│   ├── cli/              # Command-line interface
-│   ├── db/               # Database configuration
-│   └── exceptions/       # Custom exception hierarchy
-├── alembic/              # Database migrations
-├── main.py              # Application entry point
-└── pyproject.toml       # Dependencies and configuration
 ```
 
 ## 🔄 Available Commands
